@@ -1,2 +1,2 @@
 # docker-openldap-replication
-Openldap-Replikation with docker-compose
+OpenLDAP replication using Docker Compose and native LDIF configuration.
