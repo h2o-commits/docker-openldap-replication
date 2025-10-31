@@ -1,0 +1,18 @@
+dn: ou=People,dc=example,dc=com
+objectClass: organizationalUnit
+ou: People
+
+dn: uid=user,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: ldapPublicKey
+objectClass: top
+cn: user
+sn: User
+uid: user
+uidNumber: 1000
+gidNumber: 1000
+homeDirectory: /home/user
+loginShell: /bin/bash
+userPassword: CHANGEME
+sshPublicKey: CHANGEME

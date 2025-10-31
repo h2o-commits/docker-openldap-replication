@@ -1,0 +1,61 @@
+version: '3'
+
+networks:
+  ldap_network:
+    driver: bridge
+services:
+  openldap:
+    image: osixia/openldap:latest
+    container_name: openldap
+    hostname: ldap-master.example.com
+    networks:
+      ldap-network:
+        aliases:
+          - ldap-master.example.com
+    environment:
+      LDAP_ORGANISATION: Example.com
+      LDAP_DOMAIN: ldap-master.example.com
+      LDAP_ADMIN_PASSWORD: ${ADMINPASS}
+      LDAP_READONLY_USER_PASSWORD: ${READPASS}
+      LDAP_READONLY_USER_USERNAME: "reader"
+      LDAP_READONLY_USER: "true"
+      LDAP_TLS: "true"
+      LDAP_TLS_VERIFY_CLIENT: "never"
+      LDAP_TLS_CRT_FILENAME: "ldap_server.crt"
+      LDAP_TLS_KEY_FILENAME: "ldap_server.key"
+      LDAP_TLS_CA_CRT_FILENAME: "ca_server.crt"
+    volumes:
+      - ./master:/container/service/slapd/assets/config/bootstrap/ldif/custom:ro
+      - ./schema:/container/service/slapd/assets/config/bootstrap/schema/custom:ro
+      - ./certs:/container/service/slapd/assets/certs:ro
+    networks:
+      - ldap_network
+    ports:
+      - "389:389"                   # default port for unsecured LDAP
+      - "636:636"
+    command: --copy-service
+      #      --loglevel debug
+    restart: unless-stopped
+  ldap-replica:
+    image: osixia/openldap:latest
+    command: --copy-service
+      #      --loglevel debug
+    container_name: ldap-replica
+    hostname: ldap-replica.example.com
+    environment:
+      LDAP_ORGANISATION: Example.com
+      LDAP_DOMAIN: ldap-slave.example.com
+      LDAP_ADMIN_PASSWORD: ${ADMINPASS}
+      LDAP_TLS: "true"
+      LDAP_TLS_CA_CRT_FILENAME: "ca_server.crt"
+      LDAP_TLS_VERIFY_CLIENT: "never"
+      LDAP_TLS_CRT_FILENAME: "ldap_server.crt"
+      LDAP_TLS_KEY_FILENAME: "ldap_server.key"
+    depends_on:
+      - openldap
+    volumes:
+      - ./slave:/container/service/slapd/assets/config/bootstrap/ldif/custom:ro
+      - ./schema:/container/service/slapd/assets/config/bootstrap/schema/custom:ro
+      - ./certs:/container/service/slapd/assets/certs:ro
+    networks:
+      - ldap_network

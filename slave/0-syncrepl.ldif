@@ -1,0 +1,23 @@
+dn: cn=config
+changetype: modify
+add: olcServerID
+olcServerID: 002
+
+dn: cn=config
+changetype: modify
+replace: olcTLSCACertificateFile
+olcTLSCACertificateFile: /container/service/slapd/assets/certs/ca_server.crt
+
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcSyncrepl
+olcSyncrepl: rid=001
+  provider=ldaps://ldap.example.com
+  bindmethod=simple
+  binddn="cn=reader,dc=example,dc=com"
+  credentials=readerpass
+  searchbase="dc=example,dc=com"
+  type=refreshAndPersist
+  retry="60 +"
+  timeout=10
